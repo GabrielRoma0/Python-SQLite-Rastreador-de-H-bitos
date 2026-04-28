@@ -219,3 +219,29 @@ def relatorio_semanal(conn: sqlite3.Connection) -> None:
         print(linha)
 
     print("  " + "─" * 60)
+
+
+def taxa_consistencia(conn: sqlite3.Connection) -> None:
+    cursor = conn.execute("""
+                          SELECT h.nome,
+                                 COUNT(r.id) AS total,
+                                 h.criado_em
+                          FROM habitos h
+                                   LEFT JOIN registros r ON h.id = r.habito_id
+                          GROUP BY h.id
+                          ORDER BY total DESC
+                          """)
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("  Sem dados ainda.")
+        return
+
+    print()
+    print("  CONSISTÊNCIA GERAL")
+    print("  " + "─" * 40)
+    for nome, total, criado_em in rows:
+        dias_desde = (date.today() - date.fromisoformat(criado_em)).days + 1
+        taxa = int((total / dias_desde) * 100)
+        print(f"  {nome:<20} {total:>3} dias  ({taxa}%)")
+    print("  " + "─" * 40)
