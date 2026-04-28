@@ -57,3 +57,16 @@ def validar_data(data: str) -> bool:
         return True
     except ValueError:
         return False
+
+# ─────────────────────────────────────────
+#  HÁBITOS
+# ─────────────────────────────────────────
+
+def adicionar_habito(conn: sqlite3.Connection, nome: str) -> None:
+    try:
+        conn.execute("INSERT INTO habitos (nome) VALUES (?)", (nome,))
+        conn.commit()
+        print(f"  ✓ Hábito '{nome}' adicionado com sucesso!")
+    except sqlite3.IntegrityError:
+        print(f"  ✗ O hábito '{nome}' já existe.")
+
