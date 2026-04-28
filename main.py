@@ -40,3 +40,20 @@ def criar_tabelas(conn: sqlite3.Connection) -> None:
         conn.execute("UPDATE habitos SET criado_em = ? WHERE criado_em IS NULL", (str(date.today()),))
 
     conn.commit()
+
+# ─────────────────────────────────────────
+#  VALIDAÇÃO
+# ─────────────────────────────────────────
+
+def validar_nome(nome: str) -> bool:
+    """Valida se o nome do hábito é aceitável."""
+    return bool(nome) and len(nome) <= 50
+
+
+def validar_data(data: str) -> bool:
+    """Valida se a string está no formato YYYY-MM-DD."""
+    try:
+        date.fromisoformat(data)
+        return True
+    except ValueError:
+        return False
