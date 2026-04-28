@@ -70,3 +70,21 @@ def adicionar_habito(conn: sqlite3.Connection, nome: str) -> None:
     except sqlite3.IntegrityError:
         print(f"  ✗ O hábito '{nome}' já existe.")
 
+
+def remover_habito(conn: sqlite3.Connection, nome: str) -> None:
+    cursor = conn.execute("SELECT id FROM habitos WHERE nome = ?", (nome,))
+    row = cursor.fetchone()
+    if not row:
+        print(f"  ✗ Hábito '{nome}' não encontrado.")
+        return
+
+    confirmar = input(f"  Tem certeza que deseja remover '{nome}'? (s/N): ").strip().lower()
+    if confirmar != "s":
+        print("  Operação cancelada.")
+        return
+
+    habito_id = row[0]
+    conn.execute("DELETE FROM registros WHERE habito_id = ?", (habito_id,))
+    conn.execute("DELETE FROM habitos WHERE id = ?", (habito_id,))
+    conn.commit()
+    print(f"  ✓ Hábito '{nome}' e seus registros foram removidos.")
