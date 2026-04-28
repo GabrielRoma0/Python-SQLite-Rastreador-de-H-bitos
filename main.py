@@ -169,3 +169,53 @@ def calcular_streak(conn: sqlite3.Connection, habito_id: int) -> int:
         streak += 1
         dia -= timedelta(days=1)
     return streak
+
+
+# ─────────────────────────────────────────
+#  RELATÓRIOS
+# ─────────────────────────────────────────
+
+def relatorio_semanal(conn: sqlite3.Connection) -> None:
+    hoje = date.today()
+    dias = [(hoje - timedelta(days=i)) for i in range(6, -1, -1)]
+    datas = [str(d) for d in dias]
+
+    cursor = conn.execute("SELECT id, nome FROM habitos ORDER BY nome")
+    habitos = cursor.fetchall()
+
+    if not habitos:
+        print("  Nenhum hábito para exibir.")
+        return
+
+    placeholders = ",".join("?" * 7)
+    cursor = conn.execute(
+        f"SELECT habito_id, data FROM registros WHERE data IN ({placeholders})",
+        datas
+    )
+    feitos = {(r[0], r[1]) for r in cursor.fetchall()}
+
+    print()
+    print("  RELATÓRIO SEMANAL")
+    print("  " + "─" * 60)
+
+    cabecalho = "  {:<20}".format("Hábito")
+    for d in dias:
+        cabecalho += " {:^5}".format(d.strftime("%d/%m"))
+    cabecalho += "  {:>6}".format("Taxa")
+    print(cabecalho)
+    print("  " + "─" * 60)
+
+    for habito_id, nome in habitos:
+        linha = "  {:<20}".format(nome[:20])
+        total = 0
+        for data in datas:
+            if (habito_id, data) in feitos:
+                linha += "  {:^5}".format("✓")
+                total += 1
+            else:
+                linha += "  {:^5}".format("·")
+        taxa = int((total / 7) * 100)
+        linha += "  {:>5}%".format(taxa)
+        print(linha)
+
+    print("  " + "─" * 60)
