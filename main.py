@@ -88,3 +88,15 @@ def remover_habito(conn: sqlite3.Connection, nome: str) -> None:
     conn.execute("DELETE FROM habitos WHERE id = ?", (habito_id,))
     conn.commit()
     print(f"  ✓ Hábito '{nome}' e seus registros foram removidos.")
+
+def listar_habitos(conn: sqlite3.Connection) -> None:
+    cursor = conn.execute("SELECT id, nome FROM habitos ORDER BY nome")
+    habitos = cursor.fetchall()
+    if not habitos:
+        print("  Nenhum hábito cadastrado ainda.")
+    else:
+        print("\n  Hábitos cadastrados:")
+        for i, (habito_id, nome) in enumerate(habitos, 1):
+            streak = calcular_streak(conn, habito_id)
+            streak_txt = f" {streak} dia(s)" if streak > 0 else ""
+            print(f"    {i}. {nome}{streak_txt}")
