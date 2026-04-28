@@ -152,3 +152,20 @@ def desmarcar_habito(conn: sqlite3.Connection, nome: str, data: str | None = Non
     conn.commit()
     print(f"  ✓ Marcação de '{nome}' em {data} removida.")
 
+
+# ─────────────────────────────────────────
+#  STREAK
+# ─────────────────────────────────────────
+
+def calcular_streak(conn: sqlite3.Connection, habito_id: int) -> int:
+    """Retorna quantos dias consecutivos (até hoje) o hábito foi cumprido."""
+    cursor = conn.execute(
+        "SELECT data FROM registros WHERE habito_id = ? ORDER BY data DESC",
+        (habito_id,)
+    )
+    datas = {date.fromisoformat(r[0]) for r in cursor.fetchall()}
+    streak, dia = 0, date.today()
+    while dia in datas:
+        streak += 1
+        dia -= timedelta(days=1)
+    return streak
