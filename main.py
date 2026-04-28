@@ -100,3 +100,55 @@ def listar_habitos(conn: sqlite3.Connection) -> None:
             streak = calcular_streak(conn, habito_id)
             streak_txt = f" {streak} dia(s)" if streak > 0 else ""
             print(f"    {i}. {nome}{streak_txt}")
+
+
+# ─────────────────────────────────────────
+#  REGISTROS
+# ─────────────────────────────────────────
+
+def marcar_habito(conn: sqlite3.Connection, nome: str, data: str | None = None) -> None:
+    if data is None:
+        data = str(date.today())
+
+    if not validar_data(data):
+        print(f"  ✗ Data inválida: '{data}'. Use o formato YYYY-MM-DD.")
+        return
+
+    cursor = conn.execute("SELECT id FROM habitos WHERE nome = ?", (nome,))
+    row = cursor.fetchone()
+    if not row:
+        print(f"  ✗ Hábito '{nome}' não encontrado.")
+        return
+
+    try:
+        conn.execute(
+            "INSERT INTO registros (habito_id, data) VALUES (?, ?)",
+            (row[0], data)
+        )
+        conn.commit()
+        print(f"  ✓ '{nome}' marcado como feito em {data}!")
+    except sqlite3.IntegrityError:
+        print(f"  ✗ '{nome}' já foi marcado em {data}.")
+
+
+def desmarcar_habito(conn: sqlite3.Connection, nome: str, data: str | None = None) -> None:
+    if data is None:
+        data = str(date.today())
+
+    if not validar_data(data):
+        print(f"  ✗ Data inválida: '{data}'. Use o formato YYYY-MM-DD.")
+        return
+
+    cursor = conn.execute("SELECT id FROM habitos WHERE nome = ?", (nome,))
+    row = cursor.fetchone()
+    if not row:
+        print(f"  ✗ Hábito '{nome}' não encontrado.")
+        return
+
+    conn.execute(
+        "DELETE FROM registros WHERE habito_id = ? AND data = ?",
+        (row[0], data)
+    )
+    conn.commit()
+    print(f"  ✓ Marcação de '{nome}' em {data} removida.")
+
