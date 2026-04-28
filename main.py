@@ -62,3 +62,11 @@ def criar_tabelas(conn: sqlite3.Connection) -> None:
                        )
                            );
                        """)
+
+ # Migration: atualiza bancos antigos que não possuem a coluna criado_em
+    colunas = [row[1] for row in conn.execute("PRAGMA table_info(habitos)")]
+    if "criado_em" not in colunas:
+        conn.execute("ALTER TABLE habitos ADD COLUMN criado_em TEXT")
+        conn.execute("UPDATE habitos SET criado_em = ? WHERE criado_em IS NULL", (str(date.today()),))
+
+    conn.commit()
