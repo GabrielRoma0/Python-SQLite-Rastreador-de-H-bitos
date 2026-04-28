@@ -245,3 +245,87 @@ def taxa_consistencia(conn: sqlite3.Connection) -> None:
         taxa = int((total / dias_desde) * 100)
         print(f"  {nome:<20} {total:>3} dias  ({taxa}%)")
     print("  " + "─" * 40)
+
+
+# ─────────────────────────────────────────
+#  MENU
+# ─────────────────────────────────────────
+
+def menu() -> None:
+    print("""
+  ╔══════════════════════════════════╗
+  ║     RASTREADOR DE HÁBITOS        ║
+  ╠══════════════════════════════════╣
+  ║  1. Listar hábitos               ║
+  ║  2. Adicionar hábito             ║
+  ║  3. Remover hábito               ║
+  ║  4. Marcar hábito de hoje        ║
+  ║  5. Desmarcar hábito de hoje     ║
+  ║  6. Relatório semanal            ║
+  ║  7. Taxa de consistência         ║
+  ║  0. Sair                         ║
+  ╚══════════════════════════════════╝""")
+
+
+def loop_principal(conn: sqlite3.Connection) -> None:
+    print("\n  Bem-vindo ao Rastreador de Hábitos!")
+
+    while True:
+        menu()
+        opcao = input("  Escolha uma opção: ").strip()
+
+        if opcao == "1":
+            listar_habitos(conn)
+
+        elif opcao == "2":
+            nome = input("  Nome do hábito: ").strip()
+            if not validar_nome(nome):
+                print("  ✗ Nome inválido. Use entre 1 e 50 caracteres.")
+            else:
+                adicionar_habito(conn, nome)
+
+        elif opcao == "3":
+            listar_habitos(conn)
+            nome = input("  Nome do hábito a remover: ").strip()
+            if nome:
+                remover_habito(conn, nome)
+
+        elif opcao == "4":
+            listar_habitos(conn)
+            nome = input("  Nome do hábito concluído hoje: ").strip()
+            if nome:
+                marcar_habito(conn, nome)
+
+        elif opcao == "5":
+            listar_habitos(conn)
+            nome = input("  Nome do hábito a desmarcar: ").strip()
+            if nome:
+                desmarcar_habito(conn, nome)
+
+        elif opcao == "6":
+            relatorio_semanal(conn)
+
+        elif opcao == "7":
+            taxa_consistencia(conn)
+
+        elif opcao == "0":
+            print("\n  Até logo!\n")
+            break
+
+        else:
+            print("  Opção inválida.")
+
+        input("\n  [Enter para continuar]")
+
+
+def main() -> None:
+    conn = conectar()
+    try:
+        loop_principal(conn)
+    finally:
+        conn.close()
+
+
+if __name__ == "__main__":
+    main()
+
