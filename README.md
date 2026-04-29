@@ -2,6 +2,8 @@
 
 Aplicação de terminal em Python para registrar e analisar hábitos diários, com persistência de dados via SQLite.
 
+> Este projeto faz parte do meu [Portfólio Pessoal](https://gabrielroma0.github.io/).
+
 ## Funcionalidades
 
 - Cadastrar e remover hábitos
