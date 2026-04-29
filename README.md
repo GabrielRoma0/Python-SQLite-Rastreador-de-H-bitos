@@ -12,7 +12,7 @@ Aplicação de terminal em Python para registrar e analisar hábitos diários, c
 ## Como executar
 
 ```bash
-python habitos.py
+python main.py
 ```
 
 Nenhuma biblioteca externa necessária — usa apenas a biblioteca padrão do Python. 
